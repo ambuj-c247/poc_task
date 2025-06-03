@@ -48,21 +48,6 @@ Tailwind CSS for styling
 
 React under the hood
 
-📘 Learn More
-To learn more about Next.js, check out:
-
-Next.js Docs
-
-Interactive Next.js Tutorial
-
-Next.js GitHub
-
-☁️ Deploying on Vercel
-To deploy this project:
-
-
-See the Next.js deployment guide for more information.
-
 📂 Project Structure (key files)
 bash
 Copy
@@ -78,19 +63,4 @@ Edit
          # Reusable button component
 /utils
   └── validateEmployeePayments.ts # Logic to compute payment mismatches
-📄 Example Use Case
-Upload two files:
 
-Hours File: includes Employee, Hours, and Rate
-
-Payments File: includes Employee and Paid
-
-The app will:
-
-Calculate expected pay = Hours × Rate
-
-Compare with actual Paid
-
-Highlight mismatches with color-coded results
-
-Allow download of flagged results
