@@ -1,89 +1,63 @@
 export interface EmployeeRecord {
-  Employee?: string;
-  Hours?: number | string;
+  EmpId: string;
+  Employee: string;
+  Hours: number;
+  Rate: number;
 }
 
 export interface PaymentRecord {
+  EmpId?: string;
   Employee?: string;
-  Paid?: number | string;
+  Paid?: number;
 }
 
-type ValidationField = number | string;
-
 export interface ValidationResult {
+  EmpId?: string;
   Employee: string;
-  Hours: ValidationField;
-  Paid: ValidationField;
-  Expected: ValidationField;
-  Issue: string;
+  Hours: number;
+  Paid: number;
+  Expected: number;
+  Rate: number;
 }
 
 export interface FileValidationResult {
   missingCols: string[];
   valid: boolean;
-  invalidRows?: { row: number; field: string; value: any }[];
+  invalidRows?: { row: number; field: string; value: unknown }[];
 }
-
-const RATE_PER_HOUR = 20;
 
 export const validateEmployeePayments = (
   hoursData: EmployeeRecord[],
-  paymentData: PaymentRecord[],
-  tolerance = 10
+  paymentData: PaymentRecord[]
 ): ValidationResult[] => {
-  const results: ValidationResult[] = [];
+  const flaggedEmpData: ValidationResult[] = [];
 
   hoursData.forEach((employee) => {
+    const employeeId = employee.EmpId;
     const employeeName = employee.Employee;
-    const hoursWorked = employee.Hours;
+    const hoursWorkedRow = employee.Hours;
+    const ratePerHourRow = employee.Rate;
 
-    if (
-      !employeeName ||
-      hoursWorked === undefined ||
-      hoursWorked === "" ||
-      isNaN(Number(hoursWorked))
-    ) {
-      results.push({
-        Employee: employeeName || "Unknown",
-        Hours: hoursWorked ?? "N/A",
-        Paid: "N/A",
-        Expected: "N/A",
-        Issue: "Invalid or missing data in Hours file",
-      });
-      return;
-    }
+    const paymentRecord = paymentData.find((p) => p.EmpId === employeeId);
 
-    const paymentRecord = paymentData.find((p) => p.Employee === employeeName);
+    const hoursWorked = Number(hoursWorkedRow);
+    const ratePerHour = Math.round(Number(ratePerHourRow));
+    const expected = +(hoursWorked * ratePerHour).toFixed(2);
+    const actual = Number(paymentRecord?.Paid);
 
-    if (
-      paymentRecord?.Paid === undefined ||
-      isNaN(Number(paymentRecord?.Paid))
-    ) {
-      results.push({
+    if (expected !== actual) {
+      flaggedEmpData.push({
+        EmpId: employeeId,
         Employee: employeeName,
         Hours: hoursWorked,
-        Paid: paymentRecord?.Paid ?? "N/A",
-        Expected: "N/A",
-        Issue: "Missing or invalid Paid data in Payments file",
-      });
-      return;
-    }
-
-    const expected = Number(hoursWorked) * RATE_PER_HOUR;
-    const actual = Number(paymentRecord.Paid);
-
-    if (Math.abs(expected - actual) > tolerance) {
-      results.push({
-        Employee: employeeName,
-        Hours: Number(hoursWorked),
-        Paid: actual,
+        Rate: ratePerHour,
         Expected: expected,
-        Issue: `Expected ~$${expected}, got $${actual}`,
+        Paid: actual,
       });
     }
   });
 
-  return results;
+  return flaggedEmpData;
 };
 
 /**
@@ -92,15 +66,13 @@ export const validateEmployeePayments = (
  * @param requiredCols Columns expected to exist in each row
  * @param data Parsed Excel data (array of objects)
  * @param clearFile Function to reset the file input state
- * @param fileLabel Label to identify the file (e.g., "Hours File")
  * @param numericFields Fields that should contain numeric values
  * @returns Validation result object
  */
 export const validateFileColumns = (
   requiredCols: string[],
-  data: any[],
+  data: EmployeeRecord[] | PaymentRecord[],
   clearFile: () => void,
-  fileLabel: string,
   numericFields: string[] = []
 ): FileValidationResult => {
   const result: FileValidationResult = {
@@ -129,7 +101,7 @@ export const validateFileColumns = (
   // Validate numeric fields
   data.forEach((row, index) => {
     numericFields.forEach((field) => {
-      const value = row[field];
+      const value = (row as Record<string, unknown>)[field];
       if (value !== undefined && value !== null && isNaN(Number(value))) {
         result.invalidRows?.push({
           row: index + 2, // +2 to account for Excel header and 0-index

@@ -8,13 +8,17 @@ import {
   validateFileColumns,
 } from "@/utils/validation";
 import * as XLSX from "xlsx";
+import FileInput from "./common/FileInput";
+import FlaggedResults from "./common/FlaggedResults";
+import Button from "./common/Button";
 
 type ValidationResult = {
+  EmpId: string;
   Employee: string;
-  Hours: number | string;
-  Paid: number | string;
-  Expected: number | string;
-  Issue: string;
+  Hours: number;
+  Rate: number;
+  Expected: number;
+  Paid: number;
 };
 
 export default function PaymentValidator() {
@@ -30,19 +34,8 @@ export default function PaymentValidator() {
   const hoursInputRef = useRef<HTMLInputElement | null>(null);
   const paymentsInputRef = useRef<HTMLInputElement | null>(null);
 
-  const REQUIRED_HOURS_COLUMNS = ["Employee", "Hours"];
-  const REQUIRED_PAYMENTS_COLUMNS = ["Employee", "Paid"];
-
-  const handleFileUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setter: (file: File) => void
-  ) => {
-    setSuccessMessage(""); // clear success on new file upload
-    const file = e.target.files?.[0];
-    if (file) setter(file);
-    if (hoursFile) setHoursError("");
-    if (paymentsFile) setPaymentsError("");
-  };
+  const REQUIRED_HOURS_COLUMNS = ["EmpId", "Employee", "Hours", "Rate"];
+  const REQUIRED_PAYMENTS_COLUMNS = ["EmpId", "Employee", "Paid"];
 
   const parseExcel = async <T,>(file: File): Promise<T[]> => {
     return new Promise((resolve) => {
@@ -93,7 +86,6 @@ export default function PaymentValidator() {
       REQUIRED_HOURS_COLUMNS,
       hoursData,
       clearHoursFile,
-      "Hours File",
       ["Hours"]
     );
 
@@ -101,7 +93,6 @@ export default function PaymentValidator() {
       REQUIRED_PAYMENTS_COLUMNS,
       paymentsData,
       clearPaymentsFile,
-      "Payments File",
       ["Paid"]
     );
 
@@ -200,57 +191,33 @@ export default function PaymentValidator() {
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Employee Payment Validator
         </h1>
+        <FileInput
+          id="hoursFile"
+          label="Upload Hours File"
+          accept=".xlsx,.xls"
+          onFileChange={setHoursFile}
+          ref={hoursInputRef}
+          sampleFileUrl="/sample-files/sample_hours.xlsx"
+          error={hoursError}
+          setError={setHoursError}
+        />
 
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <label className="block font-medium text-gray-700">
-              Upload Hours File
-            </label>
-            <a
-              href="/sample-files/sample_hours.xlsx"
-              download
-              className="text-blue-600 underline text-sm hover:text-blue-800"
-            >
-              Download Sample
-            </a>
-          </div>
-          <input
-            ref={hoursInputRef}
-            type="file"
-            accept=".xlsx,.xls"
-            onChange={(e) => handleFileUpload(e, setHoursFile)}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-          />
-        </div>
+        <FileInput
+          id="paymentsFile"
+          label="Upload Payments File"
+          accept=".xlsx,.xls"
+          onFileChange={setPaymentsFile}
+          ref={paymentsInputRef}
+          sampleFileUrl="/sample-files/sample_payments.xlsx"
+          error={paymentsError}
+          setError={setPaymentsError}
+        />
 
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <label className="block font-medium text-gray-700">
-              Upload Payments File
-            </label>
-            <a
-              href="/sample-files/sample_payments.xlsx"
-              download
-              className="text-green-600 underline text-sm hover:text-green-800"
-            >
-              Download Sample
-            </a>
-          </div>
-          <input
-            ref={paymentsInputRef}
-            type="file"
-            accept=".xlsx,.xls"
-            onChange={(e) => handleFileUpload(e, setPaymentsFile)}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-          />
-        </div>
-
-        {(hoursError || paymentsError || columnErrors.length > 0) && (
+        {columnErrors.length > 0 && (
           <div className="mb-4 space-y-2">
-            {hoursError && <p className="text-sm text-red-600">{hoursError}</p>}
-            {paymentsError && (
-              <p className="text-sm text-red-600">{paymentsError}</p>
-            )}
+            <h2 className="text-red-600 font-semibold mb-2">
+              Column Validation Errors:
+            </h2>
             {columnErrors.map((err, idx) => (
               <p key={idx} className="text-sm text-red-600">
                 {err}
@@ -259,57 +226,17 @@ export default function PaymentValidator() {
           </div>
         )}
 
-        <button
+        <Button
           onClick={validateData}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded mb-6"
-        >
-          Validate
-        </button>
+          text="Validate Data"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded mb-6 "
+        />
 
-        {results.length > 0 && (
-          <div className="mt-6">
-            <div className="flex justify-between items-center mb-2 space-x-2">
-              <h2 className="text-lg font-semibold text-gray-800">
-                Flagged Results
-              </h2>
-              <div className="flex space-x-2">
-                <button
-                  onClick={downloadResults}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded text-sm"
-                >
-                  Download Excel
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded text-sm"
-                >
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="grid grid-cols-5 gap-4 font-semibold border-b border-gray-300 pb-2 mb-2">
-                <div>Employee</div>
-                <div>Hours</div>
-                <div>Paid</div>
-                <div>Expected</div>
-              </div>
-
-              {results.map((r, idx) => (
-                <div
-                  key={idx}
-                  className="grid grid-cols-5 gap-4 text-sm text-red-700 border-b border-gray-200 py-1"
-                >
-                  <div>{r.Employee}</div>
-                  <div>{r.Hours}</div>
-                  <div>{r.Paid}</div>
-                  <div>{r.Expected}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <FlaggedResults
+          results={results}
+          downloadResults={downloadResults}
+          handleReset={handleReset}
+        />
 
         {successMessage && (
           <div className="mt-4 p-3 bg-green-100 text-green-800 rounded text-center font-semibold">
