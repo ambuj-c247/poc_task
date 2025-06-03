@@ -1,6 +1,10 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Employee Payment Validator — Next.js App
 
-## Getting Started
+This project is a [Next.js](https://nextjs.org) application designed to help teams validate employee payments based on recorded hours and per-hour rates. It flags discrepancies like overpayment and underpayment, with an easy-to-use interface for uploading data, reviewing results, and exporting them.
+
+---
+
+## 🚀 Getting Started
 
 First, run the development server:
 
@@ -12,25 +16,81 @@ yarn dev
 pnpm dev
 # or
 bun dev
-```
+Then open http://localhost:3000 in your browser to view the app.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+✨ Features
+Upload and Validate: Upload employee hour and payment data.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Per-Hour Rate Support: Supports dynamic rate per employee.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Discrepancy Detection: Automatically flags underpaid and overpaid employees.
 
-## Learn More
+Visual Feedback:
 
-To learn more about Next.js, take a look at the following resources:
+🔴 Red = Overpaid
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🟡 Yellow = Underpaid
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Export Results: Download flagged results as Excel for further processing.
 
-## Deploy on Vercel
+Reset and Retry: Quickly reset and validate new files.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+🛠️ Development
+Start editing the app from app/page.tsx. It supports hot reloading, so changes will reflect immediately.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project uses:
+
+next/font for optimized font loading (Geist by Vercel)
+
+TypeScript for type-safe development
+
+Tailwind CSS for styling
+
+React under the hood
+
+📘 Learn More
+To learn more about Next.js, check out:
+
+Next.js Docs
+
+Interactive Next.js Tutorial
+
+Next.js GitHub
+
+☁️ Deploying on Vercel
+To deploy this project:
+
+
+See the Next.js deployment guide for more information.
+
+📂 Project Structure (key files)
+bash
+Copy
+Edit
+/app
+  └── page.tsx               # Main upload & validation page
+/components
+ common
+  ├── FileInput.tsx 
+  ├── FlaggedResults.tsx     # Displays validation results with color-coded rows
+  └── Button.tsx
+ PaymentValidator.tsx
+         # Reusable button component
+/utils
+  └── validateEmployeePayments.ts # Logic to compute payment mismatches
+📄 Example Use Case
+Upload two files:
+
+Hours File: includes Employee, Hours, and Rate
+
+Payments File: includes Employee and Paid
+
+The app will:
+
+Calculate expected pay = Hours × Rate
+
+Compare with actual Paid
+
+Highlight mismatches with color-coded results
+
+Allow download of flagged results
