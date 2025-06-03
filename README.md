@@ -16,7 +16,7 @@ yarn dev
 pnpm dev
 # or
 bun dev
-Then open http://localhost:3000 in your browser to view the app.
+
 
 ✨ Features
 Upload and Validate: Upload employee hour and payment data.
