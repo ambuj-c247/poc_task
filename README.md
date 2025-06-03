@@ -18,6 +18,7 @@ pnpm dev
 bun dev
 
 ```
+```bash
 ✨ Features
 Upload and Validate: Upload employee hour and payment data.
 
@@ -34,7 +35,8 @@ Visual Feedback:
 Export Results: Download flagged results as Excel for further processing.
 
 Reset and Retry: Quickly reset and validate new files.
-
+```
+```bash
 🛠️ Development
 Start editing the app from app/page.tsx. It supports hot reloading, so changes will reflect immediately.
 
@@ -47,7 +49,8 @@ TypeScript for type-safe development
 Tailwind CSS for styling
 
 React under the hood
-
+```
+```bash
 📂 Project Structure (key files)
 bash
 Copy
@@ -63,4 +66,4 @@ Edit
          # Reusable button component
 /utils
   └── validateEmployeePayments.ts # Logic to compute payment mismatches
-
+```
