@@ -38,15 +38,28 @@ export default function PaymentValidator() {
   const REQUIRED_PAYMENTS_COLUMNS = ["EmpId", "Employee", "Paid"];
 
   const parseExcel = async <T,>(file: File): Promise<T[]> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
+
       reader.onload = (e) => {
-        const workbook = XLSX.read(e.target?.result, { type: "binary" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json<T>(sheet);
-        resolve(json);
+        try {
+          const data = e.target?.result;
+          if (!data) throw new Error("Failed to read file");
+
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json<T>(sheet);
+          resolve(json);
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        }
       };
-      reader.readAsBinaryString(file);
+
+      reader.onerror = () => {
+        reject(new Error("Failed to read file."));
+      };
+
+      reader.readAsArrayBuffer(file);
     });
   };
 
@@ -191,27 +204,42 @@ export default function PaymentValidator() {
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Employee Payment Validator
         </h1>
-        <FileInput
-          id="hoursFile"
-          label="Upload Hours File"
-          accept=".xlsx,.xls"
-          onFileChange={setHoursFile}
-          ref={hoursInputRef}
-          sampleFileUrl="/sample-files/sample_hours.xlsx"
-          error={hoursError}
-          setError={setHoursError}
-        />
-
-        <FileInput
-          id="paymentsFile"
-          label="Upload Payments File"
-          accept=".xlsx,.xls"
-          onFileChange={setPaymentsFile}
-          ref={paymentsInputRef}
-          sampleFileUrl="/sample-files/sample_payments.xlsx"
-          error={paymentsError}
-          setError={setPaymentsError}
-        />
+        <div className="flex justify-between mb-4">
+          <FileInput
+            id="hoursFile"
+            label="Upload Hours File"
+            accept=".xlsx,.xls"
+            onFileChange={setHoursFile}
+            ref={hoursInputRef}
+            error={hoursError}
+            setError={setHoursError}
+          />
+          <a
+            href="/sample-files/sample_hours.xlsx"
+            download="/sample-files/sample_hours.xlsx"
+            className="text-blue-600 underline text-sm hover:text-blue-800"
+          >
+            Download Sample
+          </a>
+        </div>
+        <div className="flex justify-between">
+          <FileInput
+            id="paymentsFile"
+            label="Upload Payments File"
+            accept=".xlsx,.xls"
+            onFileChange={setPaymentsFile}
+            ref={paymentsInputRef}
+            error={paymentsError}
+            setError={setPaymentsError}
+          />
+          <a
+            href="/sample-files/sample_hours.xlsx"
+            download="/sample-files/sample_hours.xlsx"
+            className="text-blue-600 underline text-sm hover:text-blue-800"
+          >
+            Download Sample
+          </a>
+        </div>
 
         {columnErrors.length > 0 && (
           <div className="mb-4 space-y-2">

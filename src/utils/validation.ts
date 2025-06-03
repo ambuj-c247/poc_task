@@ -6,13 +6,13 @@ export interface EmployeeRecord {
 }
 
 export interface PaymentRecord {
-  EmpId?: string;
-  Employee?: string;
-  Paid?: number;
+  EmpId: string;
+  Employee: string;
+  Paid: number;
 }
 
 export interface ValidationResult {
-  EmpId?: string;
+  EmpId: string;
   Employee: string;
   Hours: number;
   Paid: number;
@@ -101,7 +101,7 @@ export const validateFileColumns = (
   // Validate numeric fields
   data.forEach((row, index) => {
     numericFields.forEach((field) => {
-      const value = (row as Record<string, unknown>)[field];
+      const value = row[field as keyof EmployeeRecord & keyof PaymentRecord];
       if (value !== undefined && value !== null && isNaN(Number(value))) {
         result.invalidRows?.push({
           row: index + 2, // +2 to account for Excel header and 0-index
