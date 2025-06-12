@@ -99,14 +99,14 @@ export default function PaymentValidator() {
       REQUIRED_HOURS_COLUMNS,
       hoursData,
       clearHoursFile,
-      ["Hours", "Rate", "EmpId", "Employee"]
+      ["Hours", "Rate"]
     );
 
     const paymentsValidation = validateFileColumns(
       REQUIRED_PAYMENTS_COLUMNS,
       paymentsData,
       clearPaymentsFile,
-      ["Paid", "EmpId", "Employee"]
+      ["Paid"]
     );
 
     // Collect column errors from validations
