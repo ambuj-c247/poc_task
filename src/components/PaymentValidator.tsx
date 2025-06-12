@@ -99,14 +99,14 @@ export default function PaymentValidator() {
       REQUIRED_HOURS_COLUMNS,
       hoursData,
       clearHoursFile,
-      ["Hours"]
+      ["Hours", "Rate", "EmpId", "Employee"]
     );
 
     const paymentsValidation = validateFileColumns(
       REQUIRED_PAYMENTS_COLUMNS,
       paymentsData,
       clearPaymentsFile,
-      ["Paid"]
+      ["Paid", "EmpId", "Employee"]
     );
 
     // Collect column errors from validations
@@ -233,8 +233,8 @@ export default function PaymentValidator() {
             setError={setPaymentsError}
           />
           <a
-            href="/sample-files/sample_hours.xlsx"
-            download="/sample-files/sample_hours.xlsx"
+            href="/sample-files/sample_payments.xlsx"
+            download="/sample-files/sample_payments.xlsx"
             className="text-blue-600 underline text-sm hover:text-blue-800"
           >
             Download Sample
